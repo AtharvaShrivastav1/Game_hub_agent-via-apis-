@@ -1,0 +1,221 @@
+:root {
+  --bg-primary: #0b0e14;
+  --bg-surface: #131b26;
+  --bg-card: #182230;
+  --bg-card-hover: #1e2c3e;
+  --bg-nav: rgba(15, 22, 33, 0.88);
+  
+  --steam-blue: #66c0f4;
+  --steam-blue-dark: #1999e3;
+  --steam-blue-deep: #1b2838;
+  
+  --steam-green: #5c7e10;
+  --steam-green-hover: #79991b;
+  --steam-green-glow: rgba(164, 208, 7, 0.25);
+
+  --accent-purple: #9333ea;
+  --accent-gold: #f59e0b;
+  --accent-red: #ef4444;
+
+  --text-primary: #e6edf3;
+  --text-secondary: #8b9bb4;
+  --text-muted: #576579;
+  
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-active: rgba(102, 192, 244, 0.4);
+  
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0e14;
+}
+::-webkit-scrollbar-thumb {
+  background: #253346;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3b506e;
+}
+
+/* Layout Utilities */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 20px 80px;
+  width: 100%;
+}
+
+/* Glassmorphism & Cards */
+.glass-panel {
+  background: rgba(19, 27, 38, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+}
+
+.glass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  position: relative;
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  background: var(--bg-card-hover);
+  border-color: var(--border-active);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(102, 192, 244, 0.15);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-steam {
+  background: linear-gradient(135deg, #75b022 0%, #588a1b 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(92, 126, 16, 0.35);
+}
+
+.btn-steam:hover {
+  background: linear-gradient(135deg, #8ad128 0%, #6da622 100%);
+  box-shadow: 0 4px 14px rgba(138, 209, 40, 0.45);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #1999e3 0%, #1579b5 100%);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(25, 153, 227, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #2eb2ff 0%, #1c92da 100%);
+  box-shadow: 0 4px 16px rgba(46, 178, 255, 0.4);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.btn-lg {
+  padding: 12px 24px;
+  font-size: 15px;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-genre {
+  background: rgba(102, 192, 244, 0.12);
+  color: #66c0f4;
+  border: 1px solid rgba(102, 192, 244, 0.25);
+}
+
+.badge-owned {
+  background: rgba(121, 153, 27, 0.2);
+  color: #a4d007;
+  border: 1px solid rgba(164, 208, 7, 0.4);
+}
+
+.badge-price {
+  background: #111923;
+  color: #a4d007;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(164, 208, 7, 0.3);
+}
+
+/* Grid */
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 22px;
+}
+
+@media (max-width: 640px) {
+  .games-grid {
+    grid-template-columns: 1fr;
+  }
+}
