@@ -4,7 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database.session import init_tables, SessionLocal
 from app.database.seed_data import reset_and_seed_database
-from app.api import games, cart, library, users, assistant
+from app.services.chroma_service import chroma_service
+from app.api import games, cart, library, users, assistant, purchases
 
 # Configure logging
 logging.basicConfig(
@@ -36,6 +37,9 @@ def on_startup():
     db = SessionLocal()
     try:
         reset_and_seed_database(db, reset_user_data=True)
+        # Index game catalog into ChromaDB for semantic search
+        indexed_count = chroma_service.index_games_from_db(db)
+        logger.info(f"ChromaDB: {indexed_count} games indexed for semantic search.")
     finally:
         db.close()
     logger.info("GameHub database initialized and refreshed successfully.")
@@ -46,6 +50,7 @@ app.include_router(games.router, prefix=settings.API_V1_STR)
 app.include_router(cart.router, prefix=settings.API_V1_STR)
 app.include_router(library.router, prefix=settings.API_V1_STR)
 app.include_router(users.router, prefix=settings.API_V1_STR)
+app.include_router(purchases.router, prefix=settings.API_V1_STR)
 app.include_router(assistant.router, prefix=settings.API_V1_STR)
 
 @app.get("/")

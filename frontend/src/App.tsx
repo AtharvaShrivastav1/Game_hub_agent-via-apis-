@@ -185,7 +185,12 @@ export const App: React.FC = () => {
 
     try {
       const targetGameId = contextualGameId !== undefined ? contextualGameId : (selectedGame ? selectedGame.id : null);
-      const res = await api.chatWithAssistant(1, text, targetGameId, currentThreadId);
+      const historyPayload = messages.slice(-8).map((m) => ({
+        sender: m.sender,
+        text: m.text,
+        recommended_games: m.recommended_games || [],
+      }));
+      const res = await api.chatWithAssistant(1, text, targetGameId, currentThreadId, historyPayload);
       setCurrentThreadId(res.thread_id);
 
       const assistantMsg: ChatMessage = {

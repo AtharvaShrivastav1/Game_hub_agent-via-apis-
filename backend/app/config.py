@@ -18,14 +18,23 @@ class Settings(BaseSettings):
 
     # Gemini / LLM
     GEMINI_API_KEY: Optional[str] = None
-    GEMINI_MODEL: str = "gemini-3.6-flash"
-    GEMINI_MODELS: str = "gemini-3.6-flash,gemini-3.5-flash"
+    GEMINI_MODEL: str = "gemini-flash-lite-latest"
+    GEMINI_MODELS: str = "gemini-flash-lite-latest,gemini-flash-latest,gemini-3.5-flash-lite,gemini-3.6-flash"
     GEMINI_TEMPERATURE: float = 0.0
 
     # OpenAI / Alternative LLM option
     OPENAI_API_KEY: Optional[str] = None
     OPENAI_MODEL: str = "gpt-4o-mini"
     LLM_PROVIDER: str = "gemini"  # "gemini", "openai", or "mock"
+
+    # ChromaDB Semantic Search
+    CHROMA_ENABLED: bool = True
+
+    # Assistant Backend API Client
+    BACKEND_API_BASE_URL: str = "http://127.0.0.1:8000/api"
+    API_CLIENT_TIMEOUT: float = 15.0
+    API_CLIENT_MAX_RETRIES: int = 3
+    API_CLIENT_USE_ASGI: bool = True
 
     @property
     def sync_database_url(self) -> str:

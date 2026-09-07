@@ -28,23 +28,36 @@ def stringify_content(content: Any) -> str:
         return "".join(text_parts).strip()
     return str(content)
 
-def get_llm(temperature: Optional[float] = None) -> Any:
+_llm_cache: dict = {}
 
+def clear_llm_cache() -> None:
+    """Clears the in-memory LLM cache."""
+    _llm_cache.clear()
+
+def get_llm(temperature: Optional[float] = None) -> Any:
     """
-    Returns an isolated LangChain ChatModel instance configured via environment variables.
-    Supports Google Gemini (default) and OpenAI, with intelligent error recovery.
+    Returns a cached/reusable LangChain ChatModel instance configured via environment variables.
+    Supports Google Gemini (default) and OpenAI, with fast failover and intelligent error recovery.
     """
     temp = temperature if temperature is not None else settings.GEMINI_TEMPERATURE
+    cache_key = f"{settings.LLM_PROVIDER}_{temp}_{settings.GEMINI_MODEL}_{settings.GEMINI_MODELS}"
+    
+    if cache_key in _llm_cache:
+        return _llm_cache[cache_key]
 
     if settings.LLM_PROVIDER == "openai" or (not settings.GEMINI_API_KEY and settings.OPENAI_API_KEY):
         try:
             from langchain_openai import ChatOpenAI
             logger.info(f"Using OpenAI model: {settings.OPENAI_MODEL}")
-            return ChatOpenAI(
+            instance = ChatOpenAI(
                 model=settings.OPENAI_MODEL,
                 temperature=temp,
                 api_key=settings.OPENAI_API_KEY,
+                request_timeout=10.0,
+                max_retries=1,
             )
+            _llm_cache[cache_key] = instance
+            return instance
         except Exception as e:
             logger.error(f"Failed to initialize ChatOpenAI: {e}")
 
@@ -53,21 +66,23 @@ def get_llm(temperature: Optional[float] = None) -> Any:
         try:
             from langchain_google_genai import ChatGoogleGenerativeAI
             
-            # Parse models list from settings (e.g. gemini-3.5-flash, gemini-3.7-flash, gemini-3.5-flash-lite, gemini-3.6-flash)
-            model_list = [m.strip() for m in settings.GEMINI_MODELS.split(",") if m.strip()]
-            if settings.GEMINI_MODEL and settings.GEMINI_MODEL not in model_list:
-                model_list.insert(0, settings.GEMINI_MODEL)
-            if not model_list:
-                model_list = ["gemini-3.5-flash", "gemini-3.7-flash", "gemini-3.5-flash-lite"]
+            # Parse models list from settings
+            raw_models = [m.strip() for m in settings.GEMINI_MODELS.split(",") if m.strip()]
+            if settings.GEMINI_MODEL and settings.GEMINI_MODEL not in raw_models:
+                raw_models.insert(0, settings.GEMINI_MODEL)
+            if not raw_models:
+                raw_models = ["gemini-3.5-flash-lite", "gemini-3.6-flash", "gemini-flash-lite-latest"]
 
-            primary_model = model_list[0]
-            logger.info(f"Initializing Gemini LLM with primary: {primary_model} and fallbacks: {model_list[1:]}")
+            primary_model = raw_models[0]
+            fallback_model_names = raw_models[1:]
+            logger.info(f"Initializing Gemini LLM with primary: {primary_model} and fallbacks: {fallback_model_names}")
 
             primary_llm = ChatGoogleGenerativeAI(
                 model=primary_model,
                 google_api_key=settings.GEMINI_API_KEY,
                 temperature=temp,
-                request_timeout=15.0,
+                request_timeout=10.0,
+                max_retries=1,
             )
 
             fallback_llms = [
@@ -75,17 +90,22 @@ def get_llm(temperature: Optional[float] = None) -> Any:
                     model=m,
                     google_api_key=settings.GEMINI_API_KEY,
                     temperature=temp,
-                    request_timeout=15.0,
+                    request_timeout=10.0,
+                    max_retries=1,
                 )
-                for m in model_list[1:]
+                for m in fallback_model_names
             ]
 
             if fallback_llms:
-                return primary_llm.with_fallbacks(fallback_llms)
-            return primary_llm
+                instance = primary_llm.with_fallbacks(fallback_llms)
+            else:
+                instance = primary_llm
+
+            _llm_cache[cache_key] = instance
+            return instance
         except Exception as e:
             logger.error(f"Failed to initialize ChatGoogleGenerativeAI: {e}")
 
-
     logger.warning("No valid LLM configuration found. Agent will utilize rule-based fallbacks where needed.")
     return None
+

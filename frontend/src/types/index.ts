@@ -69,6 +69,11 @@ export interface ChatResponse {
     cancelled?: boolean;
     error?: string;
   };
+  context_summary?: {
+    total_turns: number;
+    active_thread: string;
+    cached_recommendations: number;
+  };
 }
 
 export interface ChatMessage {

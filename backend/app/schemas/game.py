@@ -21,6 +21,8 @@ class GameRead(GameBase):
     created_at: datetime
     is_owned: Optional[bool] = False
     is_in_cart: Optional[bool] = False
+    semantic_score: Optional[float] = None
+    source: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
 class GameFilterParams(BaseModel):

@@ -42,6 +42,43 @@ def get_games(
     )
     return service.search_games(params, user_id=user_id)
 
+@router.get("/semantic-search", response_model=List[GameRead])
+def semantic_search_games(
+    query: str = Query(..., description="Natural language semantic search query"),
+    limit: int = Query(8, ge=1, le=50),
+    genre: Optional[str] = Query(None),
+    max_price: Optional[float] = Query(None),
+    user_id: Optional[int] = Query(None),
+    db: Session = Depends(get_db),
+):
+    """
+    Semantic similarity search over game catalog embeddings using ChromaDB.
+    Enriched with relational database properties (ownership, cart status, description).
+    """
+    from app.services.chroma_service import chroma_service
+    raw_results = chroma_service.semantic_search(
+        query=query,
+        n_results=limit,
+        genre_filter=genre,
+        max_price=max_price,
+    )
+    if not raw_results:
+        return []
+
+    service = GameService(db)
+    enriched_results: List[GameRead] = []
+    for item in raw_results:
+        gid = item.get("id")
+        if not gid:
+            continue
+        full_game = service.get_game(gid, user_id=user_id)
+        if full_game:
+            full_game.semantic_score = item.get("semantic_score")
+            full_game.source = "semantic"
+            enriched_results.append(full_game)
+
+    return enriched_results
+
 @router.get("/{game_id}", response_model=GameRead)
 def get_game(
     game_id: int,

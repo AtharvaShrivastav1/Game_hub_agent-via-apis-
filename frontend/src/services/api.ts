@@ -114,7 +114,8 @@ export const api = {
     userId: number,
     message: string,
     currentGameId?: number | null,
-    threadId?: string | null
+    threadId?: string | null,
+    chatHistory?: Array<{ sender: string; text: string; recommended_games?: any[] }>
   ): Promise<ChatResponse> {
     const res = await fetch(`${API_BASE}/assistant/chat`, {
       method: 'POST',
@@ -124,6 +125,7 @@ export const api = {
         message,
         current_game_id: currentGameId,
         thread_id: threadId,
+        chat_history: chatHistory,
       }),
     });
     if (!res.ok) throw new Error('Assistant query failed');

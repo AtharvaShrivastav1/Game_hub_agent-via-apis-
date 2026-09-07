@@ -26,6 +26,9 @@ class GameAssistantState(TypedDict, total=False):
     purchase_summary: Optional[Dict[str, Any]]
     transaction_result: Optional[Dict[str, Any]]
 
+    # Context Bucket & Memory
+    context_bucket: List[Dict[str, Any]]  # Stores multi-turn history, recommended games, and entity references
+
     # Execution telemetry and output
     agent_steps: List[Dict[str, str]]
     final_response: str

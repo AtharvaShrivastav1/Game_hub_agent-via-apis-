@@ -26,6 +26,18 @@ def recommendation_agent_node(state: GameAssistantState) -> Dict[str, Any]:
     max_duration = reqs.get("max_duration")
     genre = reqs.get("genre")
 
+    context_bucket = state.get("context_bucket", [])
+    context_history_str = ""
+    if context_bucket:
+        formatted_turns = []
+        for turn in context_bucket[-6:]:
+            role = turn.get("role", "user").capitalize()
+            content = turn.get("content", "")
+            rec_titles = turn.get("recommended_titles", [])
+            rec_str = f" [Recommended: {', '.join(rec_titles)}]" if rec_titles else ""
+            formatted_turns.append(f"- {role}: {content}{rec_str}")
+        context_history_str = "\nConversation Context Memory (Previous turns):\n" + "\n".join(formatted_turns) + "\n"
+
     llm = get_llm()
     final_text = ""
     top_recommendations: List[Dict[str, Any]] = []
@@ -41,6 +53,7 @@ def recommendation_agent_node(state: GameAssistantState) -> Dict[str, Any]:
 
             prompt = (
                 f"{RECOMMENDATION_SYSTEM_PROMPT}\n\n"
+                f"{context_history_str}\n"
                 f"User Intent: {intent}\n"
                 f"User Message: {message}\n"
                 f"User Wallet Balance: ₹{wallet_info.get('wallet_balance', 0):.2f}\n"

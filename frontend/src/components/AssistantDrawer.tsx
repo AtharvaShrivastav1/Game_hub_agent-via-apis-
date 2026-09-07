@@ -61,9 +61,9 @@ export const AssistantDrawer: React.FC<AssistantDrawerProps> = ({
     `Buy this game`,
   ] : [
     'Recommend an RPG under ₹1500',
+    'Buy the cheapest RPG or Action game under ₹2000',
     'I have ₹3000. What games should I buy?',
     'Find games I can finish in under 20 hours',
-    "What's in my cart?",
     'Buy everything in my cart',
   ];
 

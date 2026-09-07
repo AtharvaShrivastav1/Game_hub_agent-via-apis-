@@ -31,3 +31,11 @@ class PurchaseExecutionResult(BaseModel):
     message: str
     purchases: List[PurchaseRead] = []
     new_wallet_balance: float
+
+class PurchaseValidationRequest(BaseModel):
+    user_id: int
+    game_ids: List[int]
+
+class PurchaseExecutionRequest(BaseModel):
+    user_id: int
+    game_ids: List[int]
